@@ -128,4 +128,4 @@ let wake = null;
 document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && opened && navigator.wakeLock) { try { wake = await navigator.wakeLock.request('screen'); } catch (e) {} } });
 stage.addEventListener('pointerdown', async () => { if (navigator.wakeLock && !wake) { try { wake = await navigator.wakeLock.request('screen'); } catch (e) {} } }, { once: true });
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(r => { r.update(); document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') r.update(); }); }).catch(() => {});
