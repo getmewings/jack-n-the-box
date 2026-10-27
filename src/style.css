@@ -1,0 +1,41 @@
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#0b0810;color:#f3e9d2;touch-action:none;-webkit-user-select:none;user-select:none;overscroll-behavior:none}
+body{position:fixed;inset:0;font-family:system-ui,sans-serif}
+#stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;perspective:900px;
+  background:radial-gradient(ellipse at 50% 35%,#2a1430 0%,#120a18 55%,#06040a 100%);transition:opacity .6s}
+#stage.hidden{opacity:0;pointer-events:none}
+#room{position:relative;width:min(62vw,300px);aspect-ratio:1;transform-style:preserve-3d;transform:rotateX(-18deg) rotateY(-26deg);animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotateX(-18deg) rotateY(-26deg)}50%{transform:translateY(-10px) rotateX(-16deg) rotateY(-24deg)}}
+#shadow{position:absolute;left:5%;right:5%;bottom:-30%;height:30%;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.65),transparent 70%);transform:rotateX(90deg) translateZ(-40px)}
+#box{position:absolute;inset:0;transform-style:preserve-3d;--s:min(62vw,300px)}
+.face{position:absolute;inset:0;background:
+  repeating-conic-gradient(from 45deg,#b3122c 0 25%,#7d0c22 0 50%) 0 0/ 25% 25%;
+  border:calc(var(--s)*.035) solid #e8b84a;box-shadow:inset 0 0 40px rgba(0,0,0,.45)}
+.face.front{transform:translateZ(calc(var(--s)/2))}
+.face.back{transform:rotateY(180deg) translateZ(calc(var(--s)/2))}
+.face.left{transform:rotateY(-90deg) translateZ(calc(var(--s)/2));background:repeating-conic-gradient(from 45deg,#1c5fa8 0 25%,#143f73 0 50%) 0 0/25% 25%}
+.face.right{transform:rotateY(90deg) translateZ(calc(var(--s)/2));background:repeating-conic-gradient(from 45deg,#1c5fa8 0 25%,#143f73 0 50%) 0 0/25% 25%}
+.face.bottom{transform:rotateX(-90deg) translateZ(calc(var(--s)/2));background:#3a0a14}
+#lid{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(90deg) translateZ(calc(var(--s)/2));--open:0deg}
+#lid.open{--open:112deg}
+.lidtop{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:50% 0%;transform:rotateX(var(--open));transition:transform .35s cubic-bezier(.2,1.6,.4,1);background:repeating-conic-gradient(from 45deg,#f0c84f 0 25%,#c9961f 0 50%) 0 0/25% 25%;border:calc(var(--s)*.035) solid #e8b84a;backface-visibility:visible}
+.lidfront{position:absolute;left:0;right:0;top:100%;height:calc(var(--s)*.12);transform-origin:50% 0;transform:rotateX(-90deg);background:#e8b84a;border-bottom:3px solid #9c7417}
+#crank{position:absolute;left:100%;top:50%;width:0;height:0;transform:translateZ(0) rotateY(90deg);transform-style:preserve-3d}
+#crank .arm{position:absolute;left:-6px;top:-6px;width:12px;height:calc(var(--s)*.3);background:linear-gradient(#ddd,#777);border-radius:4px;transform-origin:6px 6px;transform:rotate(var(--a,0deg));border-radius:6px;box-shadow:2px 2px 4px rgba(0,0,0,.5)}
+#crank .knob{position:absolute;width:calc(var(--s)*.16);height:calc(var(--s)*.16);border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff8a5c,#8c1f12);transform:rotate(var(--a,0deg)) translateY(calc(var(--s)*.3)) translate(-50%,-50%) translateZ(14px);transform-origin:0 0;left:0;top:0}
+#hint{position:absolute;width:min(30vw,130px);color:#f3e9d2;opacity:0;bottom:12%;left:50%;transform:translateX(-50%);transition:opacity 1s}
+#hint.show{opacity:.45;animation:spin 2.4s linear infinite}
+@keyframes spin{to{transform:translateX(-50%) rotate(360deg)}}
+#dayring{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:16px;width:28px;height:28px;color:#f3e9d2;opacity:.55}
+#show{position:absolute;inset:0;display:none;background:#000}
+#show.on{display:block}
+#close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:10px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;display:none;place-items:center;opacity:0;transition:opacity .6s;z-index:5}
+#close svg{width:26px;height:26px}
+#close.on{display:grid}
+#close.vis{opacity:.7}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:9}
+.shake{animation:shake .4s linear}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-8px,6px)}40%{transform:translate(9px,-5px)}60%{transform:translate(-6px,-7px)}80%{transform:translate(5px,8px)}}
+.glyph{position:absolute;left:50%;top:50%;width:min(34vw,150px);height:min(34vw,150px);transform:translate(-50%,-50%);color:#fff;opacity:.85;animation:pulse 1.6s ease-in-out infinite;cursor:pointer}
+.glyph svg{width:100%;height:100%}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.12)}}
