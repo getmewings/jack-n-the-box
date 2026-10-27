@@ -40,12 +40,12 @@ export default {
       // sclera
       const sg = ctx.createRadialGradient(cx, cy, w * 0.05, cx, cy, w * 0.55); sg.addColorStop(0, '#f7f3ee'); sg.addColorStop(0.75, '#e9e0d8'); sg.addColorStop(1, '#b89a92'); ctx.fillStyle = sg; ctx.fillRect(cx - w, cy - h, w * 2, h * 2);
       // veins
-      if (!big) { ctx.strokeStyle = 'rgba(190,40,40,.28)'; ctx.lineWidth = w * 0.004; for (const v of veins) { ctx.beginPath(); let x = cx + Math.cos(v.a) * w * 0.5, y = cy + Math.sin(v.a) * h * 0.5; ctx.moveTo(x, y); for (let i = 0; i < 5; i++) { x -= Math.cos(v.a) * w * 0.045; y -= Math.sin(v.a) * h * 0.045 + v.seg[i] * h * 0.03; ctx.lineTo(x, y); } ctx.stroke(); } }
+      if (!big && w > 150) { ctx.strokeStyle = 'rgba(190,40,40,.28)'; ctx.lineWidth = w * 0.004; for (const v of veins) { ctx.beginPath(); let x = cx + Math.cos(v.a) * w * 0.5, y = cy + Math.sin(v.a) * h * 0.5; ctx.moveTo(x, y); for (let i = 0; i < 5; i++) { x -= Math.cos(v.a) * w * 0.045; y -= Math.sin(v.a) * h * 0.045 + v.seg[i] * h * 0.03; ctx.lineTo(x, y); } ctx.stroke(); } }
       // iris
       const ir = w * 0.19 * (big ? 2.2 : 1), ix = cx + lx * w * 0.28, iy = cy + ly * h * 0.3;
       ctx.save(); ctx.beginPath(); ctx.arc(ix, iy, ir, 0, TAU); ctx.clip();
       const ig = ctx.createRadialGradient(ix, iy, ir * 0.3, ix, iy, ir); ig.addColorStop(0, `hsl(${IRIS[0]},${IRIS[1]}%,${IRIS[2] + 15}%)`); ig.addColorStop(0.8, `hsl(${IRIS[0]},${IRIS[1]}%,${IRIS[2]}%)`); ig.addColorStop(1, `hsl(${IRIS[0]},${IRIS[1]}%,${IRIS[2] - 25}%)`); ctx.fillStyle = ig; ctx.fillRect(ix - ir, iy - ir, ir * 2, ir * 2);
-      for (const f of fibers) { ctx.strokeStyle = `hsla(${IRIS[0] + f.h},${IRIS[1]}%,${IRIS[2] + 25}%,.35)`; ctx.lineWidth = f.w * ir * 0.012; ctx.beginPath(); ctx.moveTo(ix + Math.cos(f.a) * ir * pup * 0.9, iy + Math.sin(f.a) * ir * pup * 0.9); ctx.lineTo(ix + Math.cos(f.a + 0.05) * ir * f.l, iy + Math.sin(f.a + 0.05) * ir * f.l); ctx.stroke(); }
+      if (w > 150) for (const f of fibers) { ctx.strokeStyle = `hsla(${IRIS[0] + f.h},${IRIS[1]}%,${IRIS[2] + 25}%,.35)`; ctx.lineWidth = f.w * ir * 0.012; ctx.beginPath(); ctx.moveTo(ix + Math.cos(f.a) * ir * pup * 0.9, iy + Math.sin(f.a) * ir * pup * 0.9); ctx.lineTo(ix + Math.cos(f.a + 0.05) * ir * f.l, iy + Math.sin(f.a + 0.05) * ir * f.l); ctx.stroke(); }
       // pupil
       const pg = ctx.createRadialGradient(ix, iy, ir * pup * 0.7, ix, iy, ir * pup * 1.08); pg.addColorStop(0, '#000'); pg.addColorStop(0.85, '#000'); pg.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(ix, iy, ir * pup * 1.1, 0, TAU); ctx.fill();
       // highlight
