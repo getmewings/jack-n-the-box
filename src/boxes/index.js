@@ -3,6 +3,8 @@ import seed from './seed.js';
 import moth from './moth.js';
 import kite from './kite.js';
 import lighthouse from './lighthouse.js';
+import globe from './globe.js';
+import window_ from './window.js';
 import ink from './ink.js';
 
-export const boxes = [seed, moth, kite, lighthouse, ink];
+export const boxes = [seed, moth, kite, lighthouse, globe, window_, ink];
