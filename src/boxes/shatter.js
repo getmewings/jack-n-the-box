@@ -15,17 +15,31 @@ export default {
     let drag = null, stirX = 0, stirY = 0;
     const neutral = mo.tilt();
 
+    const motes = Array.from({ length: 46 }, () => ({ a: rnd(TAU), r: rnd(1.25, 2.4), s: rnd(0.05, 0.2), z: rnd(0.4, 1), ph: rnd(TAU) }));
+    const blobs = [[285, 0.9, 0.0], [330, 0.7, 2.1], [200, 0.6, 4.2], [260, 0.8, 1.0], [20, 0.35, 3.3]];
     function drawCalm(c, t) {
       const W = cv.W, H = cv.H;
-      const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#0a0b1e'); g.addColorStop(1, '#1c1030'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-      const r = Math.min(W, H) * (0.22 + 0.02 * Math.sin(t * 1.4)), cx = W / 2, cy = H * 0.46;
-      for (let i = 4; i >= 0; i--) {
-        const rr = r * (1 + i * 0.35), gg = c.createRadialGradient(cx, cy, 0, cx, cy, rr);
-        gg.addColorStop(0, `hsla(${300 + 20 * Math.sin(t)},80%,70%,${i ? 0.05 : 0.9})`); gg.addColorStop(1, 'hsla(260,80%,60%,0)');
-        c.fillStyle = gg; c.beginPath(); c.arc(cx, cy, rr, 0, TAU); c.fill();
-      }
-      const hl = c.createRadialGradient(cx - r * 0.35, cy - r * 0.4, 0, cx - r * 0.35, cy - r * 0.4, r * 0.6); hl.addColorStop(0, 'rgba(255,255,255,.55)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
-      c.fillStyle = hl; c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.fill();
+      const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#07060f'); g.addColorStop(1, '#120b1d'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+      const r = Math.min(W, H) * (0.21 + 0.012 * Math.sin(t * 1.1)), cx = W / 2, cy = H * 0.45;
+      // halo
+      const halo = c.createRadialGradient(cx, cy, r * 0.8, cx, cy, r * 2.6); halo.addColorStop(0, 'rgba(150,90,255,.22)'); halo.addColorStop(1, 'rgba(150,90,255,0)'); c.fillStyle = halo; c.fillRect(0, 0, W, H);
+      // motes in orbit
+      c.globalCompositeOperation = 'lighter';
+      for (const m of motes) { m.a += m.s * 0.016; const d = r * m.r, x = cx + Math.cos(m.a) * d, y = cy + Math.sin(m.a) * d * 0.55 + Math.sin(t + m.ph) * 6, al = (0.35 + 0.3 * Math.sin(t * 2 + m.ph)) * m.z, sz = 3 + m.z * 5; c.globalAlpha = al; c.drawImage(sprite, x - sz, y - sz, sz * 2, sz * 2); }
+      c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+      // the glass orb: nebula inside
+      c.save(); c.beginPath(); c.arc(cx, cy, r, 0, TAU); c.clip();
+      c.fillStyle = '#17082a'; c.fillRect(cx - r, cy - r, r * 2, r * 2);
+      c.globalCompositeOperation = 'lighter';
+      for (const [h, k, ph] of blobs) { const bx = cx + Math.cos(t * 0.23 + ph) * r * 0.45, by = cy + Math.sin(t * 0.31 + ph * 1.3) * r * 0.45, br = r * (0.5 + 0.25 * Math.sin(t * 0.4 + ph)) * k; const bg = c.createRadialGradient(bx, by, 0, bx, by, br); bg.addColorStop(0, `hsla(${h},85%,62%,.75)`); bg.addColorStop(1, `hsla(${h},85%,62%,0)`); c.fillStyle = bg; c.fillRect(cx - r, cy - r, r * 2, r * 2); }
+      c.globalCompositeOperation = 'source-over';
+      // sphere shading, rim and specular
+      const sh = c.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r); sh.addColorStop(0, 'rgba(255,255,255,0)'); sh.addColorStop(0.7, 'rgba(0,0,0,.05)'); sh.addColorStop(1, 'rgba(0,0,0,.6)'); c.fillStyle = sh; c.fillRect(cx - r, cy - r, r * 2, r * 2);
+      const rim = c.createRadialGradient(cx, cy, r * 0.86, cx, cy, r); rim.addColorStop(0, 'rgba(255,255,255,0)'); rim.addColorStop(0.8, 'rgba(200,180,255,.25)'); rim.addColorStop(1, 'rgba(255,255,255,.55)'); c.fillStyle = rim; c.fillRect(cx - r, cy - r, r * 2, r * 2);
+      const hl = c.createRadialGradient(cx - r * 0.38, cy - r * 0.42, 0, cx - r * 0.38, cy - r * 0.42, r * 0.45); hl.addColorStop(0, 'rgba(255,255,255,.7)'); hl.addColorStop(0.4, 'rgba(255,255,255,.12)'); hl.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = hl; c.fillRect(cx - r, cy - r, r * 2, r * 2);
+      c.restore();
+      // ground reflection
+      const rf = c.createRadialGradient(cx, cy + r * 1.9, 0, cx, cy + r * 1.9, r * 1.4); rf.addColorStop(0, 'rgba(160,100,255,.14)'); rf.addColorStop(1, 'rgba(160,100,255,0)'); c.fillStyle = rf; c.fillRect(0, 0, W, H);
     }
 
     function crack(px, py) {

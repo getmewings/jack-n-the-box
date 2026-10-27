@@ -1,9 +1,43 @@
-import { audio, haptic, motion, flash, seeded } from './engine.js';
+import { audio, haptic, motion, flash, seeded, rnd, TAU, glowSprite } from './engine.js';
 import { boxes } from './boxes/index.js';
 
 const EPOCH = new Date(2026, 9, 27); // local midnight, day 0
 const $ = s => document.querySelector(s);
-const stage = $('#stage'), room = $('#room'), lid = $('#lid'), crank = $('#crank'), hint = $('#hint'), show = $('#show'), closeBtn = $('#close'), arc = $('#dayarc');
+const stage = $('#stage'), room = $('#room'), lid = $('#lid'), crank = $('#crank'), hint = $('#hint'), show = $('#show'), closeBtn = $('#close'), arc = $('#dayarc'), post = $('#post');
+
+// ---------- dust in the spotlight, and the burst when the lid pops ----------
+const dust = $('#dust'), dctx = dust.getContext('2d'), motes = [], rays = [], sprite = glowSprite(32, '255,225,170');
+let DW = 0, DH = 0, dpr = 1, burstT = 0;
+function dsize() { dpr = Math.min(devicePixelRatio || 1, 2); DW = innerWidth; DH = innerHeight; dust.width = DW * dpr; dust.height = DH * dpr; dust.style.width = DW + 'px'; dust.style.height = DH + 'px'; dctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+dsize(); addEventListener('resize', dsize);
+for (let i = 0; i < 90; i++) motes.push({ x: Math.random(), y: Math.random(), z: rnd(0.3, 1), vx: rnd(-1, 1), vy: rnd(-1, 1), ph: rnd(TAU) });
+let dlast = performance.now();
+(function dloop(now) {
+  const dt = Math.min(0.05, (now - dlast) / 1000); dlast = now; requestAnimationFrame(dloop);
+  dctx.clearRect(0, 0, DW, DH);
+  if (stage.classList.contains('hidden') && burstT <= 0) return;
+  dctx.globalCompositeOperation = 'lighter';
+  if (!stage.classList.contains('hidden')) for (const m of motes) {
+    m.vx += rnd(-1, 1) * dt * 0.4; m.vy += rnd(-1, 1) * dt * 0.4 - dt * 0.05; m.vx *= 0.98; m.vy *= 0.98;
+    m.x += m.vx * dt * 0.02; m.y += m.vy * dt * 0.02;
+    if (m.x < 0) m.x = 1; if (m.x > 1) m.x = 0; if (m.y < 0) m.y = 1; if (m.y > 1) m.y = 0;
+    const px = m.x * DW, py = m.y * DH, inCone = Math.max(0, 1 - Math.abs(px - DW / 2) / (DW * (0.15 + m.y * 0.45)));
+    const a = inCone * (0.25 + 0.2 * Math.sin(now * 0.002 + m.ph)) * m.z; if (a < 0.02) continue;
+    const sz = 2 + m.z * 5; dctx.globalAlpha = a; dctx.drawImage(sprite, px - sz, py - sz, sz * 2, sz * 2);
+  }
+  if (burstT > 0) {
+    burstT -= dt; const k = 1 - burstT / 0.8;
+    for (const r of rays) {
+      const len = r.len * Math.sin(Math.min(1, k * 1.4) * Math.PI / 2), x0 = DW / 2 + Math.cos(r.a) * len * 0.15, y0 = DH * 0.44 + Math.sin(r.a) * len * 0.15, x1 = DW / 2 + Math.cos(r.a) * len, y1 = DH * 0.44 + Math.sin(r.a) * len;
+      const g = dctx.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, `rgba(255,230,170,${0.9 * (1 - k)})`); g.addColorStop(1, 'rgba(255,230,170,0)');
+      dctx.strokeStyle = g; dctx.lineWidth = r.w * (1 - k * 0.5); dctx.beginPath(); dctx.moveTo(x0, y0); dctx.lineTo(x1, y1); dctx.stroke();
+    }
+    const gg = dctx.createRadialGradient(DW / 2, DH * 0.44, 0, DW / 2, DH * 0.44, DW * 0.6 * k); gg.addColorStop(0, `rgba(255,220,150,${0.5 * (1 - k)})`); gg.addColorStop(1, 'rgba(255,220,150,0)');
+    dctx.globalAlpha = 1; dctx.fillStyle = gg; dctx.fillRect(0, 0, DW, DH);
+  }
+  dctx.globalAlpha = 1; dctx.globalCompositeOperation = 'source-over';
+})(dlast);
+function burst() { rays.length = 0; for (let i = 0; i < 70; i++) rays.push({ a: rnd(TAU), len: rnd(0.25, 0.8) * Math.max(DW, DH), w: rnd(1, 4) }); burstT = 0.8; }
 
 function today() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
 function dayNumber() { return Math.max(0, Math.round((today() - EPOCH) / 86400000)); }
@@ -60,14 +94,14 @@ async function pop() {
   haptic([30, 40, 80]);
   lid.style.removeProperty('--open'); lid.classList.add('open');
   room.style.animation = 'none';
-  setTimeout(() => flash(1, 500), 180);
-  setTimeout(open, 260);
+  setTimeout(() => { burst(); flash(0.9, 700); }, 120);
+  setTimeout(open, 520);
 }
 
 async function open() {
   const d = dayNumber(); current = pickBox(d);
   if (location.hostname === 'localhost') { const q = new URLSearchParams(location.search).get('box'); const f = boxes.find(b => b.name === q); if (f) current = f; }
-  show.classList.add('on'); stage.classList.add('hidden');
+  show.classList.add('on'); post.classList.add('on'); requestAnimationFrame(() => requestAnimationFrame(() => show.classList.add('in'))); stage.classList.add('hidden');
   closeBtn.classList.add('on'); closeBtn.classList.remove('vis');
   const api = { root: show, day: d, rng: seeded(d + 1), motion, close: closeBox };
   try { activeCleanup = await current.mount(show, api); } catch (err) { console.error(err); }
@@ -75,7 +109,7 @@ async function open() {
 }
 function closeBox() {
   try { activeCleanup && activeCleanup(); } catch (e) {} activeCleanup = null;
-  show.innerHTML = ''; show.classList.remove('on'); closeBtn.classList.remove('on', 'vis');
+  show.innerHTML = ''; show.classList.remove('on', 'in'); post.classList.remove('on'); closeBtn.classList.remove('on', 'vis');
   stage.classList.remove('hidden');
   setTimeout(() => { lid.classList.remove('open'); room.style.animation = ''; opened = false; noteI = 0; acc = 0; audio.noise({ dur: 0.06, gain: 0.15, type: 'lowpass', freq: 500 }); }, 700);
 }
