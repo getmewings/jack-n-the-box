@@ -16,19 +16,7 @@
 <body>
 <div id="stage" aria-hidden="true">
   <div id="spot"></div>
-  <div id="room">
-    <div id="shadow"></div>
-    <div id="box">
-      <div class="face bottom"></div>
-      <div class="face back"></div>
-      <div class="face left"></div>
-      <div class="face right"></div>
-      <div id="inner"></div>
-      <div class="face front"></div>
-      <div id="lid"><div class="lidtop"><div class="lidunder"></div><div class="lidfront"></div></div></div>
-      <div id="crank"><div class="hub"></div><div class="arm"></div><div class="knob"></div></div>
-    </div>
-  </div>
+  <div id="stage3d"></div>
   <svg id="hint" viewBox="0 0 100 100"><path d="M50 18a32 32 0 1 1-26 13" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M19 22l3 12 12-3" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
   <div id="dayring"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-opacity=".15" stroke-width="2"/><circle id="dayarc" cx="18" cy="18" r="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="100.5" transform="rotate(-90 18 18)"/></svg></div>
 </div>
@@ -37,6 +25,7 @@
 <canvas id="dust"></canvas>
 <button id="close" aria-label="close"><svg viewBox="0 0 24 24"><path d="M6 10l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <div id="flash"></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module" src="src/app.js"></script>
 </body>
 </html>
