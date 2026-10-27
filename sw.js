@@ -1,5 +1,5 @@
 // Network first so a new day's box is always fresh; cache as a fallback for the subway.
-const V = 'jack-v2';
+const V = 'jack-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './src/style.css', './src/app.js', './src/engine.js', './src/boxes/index.js',
   './src/boxes/hole.js', './src/boxes/fireflies.js', './src/boxes/breath.js', './src/boxes/eye.js', './src/boxes/lightning.js', './src/boxes/mirror.js', './src/boxes/voice.js', './icons/icon.svg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });

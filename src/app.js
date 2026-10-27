@@ -103,9 +103,17 @@ async function open() {
   if (location.hostname === 'localhost') { const q = new URLSearchParams(location.search).get('box'); const f = boxes.find(b => b.name === q); if (f) current = f; }
   show.classList.add('on'); post.classList.add('on'); requestAnimationFrame(() => requestAnimationFrame(() => show.classList.add('in'))); stage.classList.add('hidden');
   closeBtn.classList.add('on'); closeBtn.classList.remove('vis');
-  const api = { root: show, day: d, rng: seeded(d + 1), motion, close: closeBox };
+  const api = { root: show, day: d, rng: seeded(d + 1), motion, close: closeBox, done: finale };
   try { activeCleanup = await current.mount(show, api); } catch (err) { console.error(err); }
   setTimeout(() => closeBtn.classList.add('vis'), 3500);
+}
+// the performance is over: a soft chord, fade to black, lid closes
+let ending = false;
+function finale() {
+  if (ending) return; ending = true;
+  [60, 67, 72, 76, 79].forEach((m, i) => audio.pluck(m, { t: i * 0.09, gain: 0.16, dur: 2.4 }));
+  show.classList.remove('in'); closeBtn.classList.remove('vis');
+  setTimeout(() => { ending = false; closeBox(); }, 1500);
 }
 function closeBox() {
   try { activeCleanup && activeCleanup(); } catch (e) {} activeCleanup = null;
